@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 from datetime import datetime
-import plotly.graph_objects as go
 
 # 페이지 설정
 st.set_page_config(
@@ -162,46 +161,6 @@ if search_button or search_query:
         </div>
         """, unsafe_allow_html=True)
     
-    # 사용 통계 시각화
-    st.markdown("### 데이터세트 사용 통계")
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        # 월별 다운로드 추이 (예시 데이터)
-        months = ['2023-01', '2023-02', '2023-03', '2023-04', '2023-05', '2023-06', 
-                 '2023-07', '2023-08', '2023-09', '2023-10', '2023-11', '2023-12']
-        downloads = [23, 18, 35, 42, 28, 30, 47, 50, 38, 41, 53, 60]
-        
-        fig1 = go.Figure()
-        fig1.add_trace(go.Scatter(x=months, y=downloads, mode='lines+markers', 
-                                name='다운로드 수', line=dict(color='#2563EB', width=3)))
-        fig1.update_layout(
-            title='월별 다운로드 추이',
-            xaxis_title='월',
-            yaxis_title='다운로드 수',
-            height=300
-        )
-        st.plotly_chart(fig1, use_container_width=True)
-    
-    with col2:
-        # 연관 데이터세트 (예시)
-        st.markdown("### 연관 데이터세트")
-        
-        related_datasets = [
-            {"title": "강원도 국가지정문화재 현황", "similarity": "92%"},
-            {"title": "강원도 관광지 문화재 방문객 통계", "similarity": "85%"},
-            {"title": "강원도 무형문화재 보유자 현황", "similarity": "78%"}
-        ]
-        
-        for ds in related_datasets:
-            st.markdown(f"""
-            <div style="padding: 10px; border: 1px solid #ddd; border-radius: 5px; margin-bottom: 10px;">
-                <div style="display: flex; justify-content: space-between;">
-                    <span>{ds["title"]}</span>
-                    <span class="highlight" style="background-color: #2563EB;">유사도: {ds["similarity"]}</span>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
     
     # 데이터 미리보기 (예시)
     with st.expander("데이터 미리보기"):
