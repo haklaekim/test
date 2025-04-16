@@ -1,5 +1,4 @@
 import streamlit as st
-import pandas as pd
 from datetime import datetime
 
 # 페이지 설정
@@ -12,170 +11,189 @@ st.set_page_config(
 # CSS 스타일 적용
 st.markdown("""
 <style>
-    .main-header {
-        font-size: 26px;
+    .dataset-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    .dataset-title {
+        font-size: 22px;
         font-weight: bold;
-        color: #1E3A8A;
-        margin-bottom: 20px;
+        color: #2C3E50;
+        margin-right: 10px;
     }
-    .card {
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        background-color: white;
-        margin-bottom: 20px;
-    }
-    .metadata-group {
-        margin-bottom: 15px;
-        border-bottom: 1px solid #eee;
-        padding-bottom: 10px;
-    }
-    .metadata-label {
-        font-weight: bold;
-        color: #555;
-        min-width: 120px;
-        display: inline-block;
-    }
-    .metadata-value {
-        color: #000;
-    }
-    .tag {
-        background-color: #E5E7EB;
-        padding: 5px 10px;
-        border-radius: 15px;
-        margin-right: 5px;
-        font-size: 0.8em;
-    }
-    .highlight {
+    .quality-badge {
         background-color: #4CAF50;
         color: white;
-        font-weight: bold;
-        padding: 2px 6px;
+        padding: 4px 8px;
         border-radius: 4px;
+        font-weight: bold;
+        font-size: 14px;
+        margin-right: 6px;
     }
-    .button-container {
+    .relevance-badge {
+        background-color: #3182CE;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-weight: bold;
+        font-size: 14px;
+    }
+    .dataset-description {
+        font-size: 16px;
+        color: #333;
+        margin-bottom: 15px;
+    }
+    .metadata-row {
         display: flex;
-        gap: 10px;
-        margin-top: 15px;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 6px;
     }
-    .last-update {
-        color: #888;
-        font-size: 0.8em;
-        font-style: italic;
+    .metadata-item {
+        display: flex;
+    }
+    .metadata-label {
+        font-weight: 500;
+        color: #555;
+        margin-right: 4px;
+    }
+    .metadata-value {
+        color: #1A202C;
+    }
+    .tag-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 8px;
+    }
+    .tag {
+        background-color: #EDF2F7;
+        color: #4A5568;
+        padding: 3px 8px;
+        border-radius: 12px;
+        font-size: 13px;
+    }
+    .divider {
+        height: 1px;
+        background-color: #E2E8F0;
+        margin: 12px 0;
     }
 </style>
 """, unsafe_allow_html=True)
 
 # 검색 기능
-st.markdown('<div class="main-header">데이터세트 검색 서비스</div>', unsafe_allow_html=True)
+st.title("데이터세트 검색 서비스")
 
-col1, col2 = st.columns([3, 1])
-with col1:
-    search_query = st.text_input("검색어를 입력하세요", value="문화재")
-with col2:
-    st.write("")
-    st.write("")
-    search_button = st.button("검색", use_container_width=True)
+search_query = st.text_input("검색어를 입력하세요", value="문화재")
+search_button = st.button("검색", use_container_width=False)
 
 # 필터 섹션
-st.markdown("### 검색 필터")
-col1, col2, col3 = st.columns(3)
+col1, col2, col3, col4 = st.columns(4)
 with col1:
     category = st.selectbox("카테고리", ["전체", "문화재", "관광", "경제", "교통", "환경", "기타"])
 with col2:
-    date_range = st.date_input("기간 선택", [datetime(2014, 1, 1), datetime(2023, 12, 31)])
+    provider = st.selectbox("제공기관", ["전체", "강원특별자치도", "서울특별시", "경기도", "기타"])
 with col3:
-    sort_by = st.selectbox("정렬 기준", ["등록일 (최신순)", "등록일 (오래된 순)", "조회수", "다운로드 수"])
+    file_format = st.selectbox("파일형식", ["전체", "CSV", "JSON", "XML", "PDF", "기타"])
+with col4:
+    sort_by = st.selectbox("정렬 기준", ["관련도 순", "최신 등록일 순", "다운로드 많은 순"])
 
 # 검색 결과 - 예시 데이터
 if search_button or search_query:
+    st.markdown("---")
     st.markdown("### 검색 결과")
     
-    # 예시 데이터 (이미지에서 보이는 데이터 기반)
-    dataset = {
-        "title": "강원도 문화재통계",
-        "id": "generated:3a474f61-aa0a-479b-8271-d0b5fc107042",
-        "description": "도내 문화재(국가지정,지방지정 등) 통계",
-        "doc_id": "3082811",
-        "doc_type": "FILE",
-        "reg_date": "2014-10-22",
-        "update_date": "2020-07-30",
-        "provider": "강원특별자치도",
-        "department": "정보화정책과",
-        "file_format": "csv",
-        "category": "문화재목관 - 문화재",
-        "tags": ["문화재", "국보", "보물"],
-        "views": 1248,
-        "downloads": 347,
-        "quality_score": "100%",
-        "relevance_score": "74.5%"
-    }
-    
-    # 데이터세트 카드 형태로 표시
-    with st.container():
-        st.markdown(f"""
-        <div class="card">
-            <h2>{dataset["title"]} 
-                <span class="highlight">{dataset["quality_score"]}</span>
-                <span class="highlight" style="background-color: #2563EB;">유사도: {dataset["relevance_score"]}</span>
-            </h2>
-            <p>{dataset["description"]}</p>
-            
-            <div class="metadata-group">
-                <span class="metadata-label">제공기관:</span>
-                <span class="metadata-value">{dataset["provider"]}</span> |
-                <span class="metadata-label">담당부서:</span>
-                <span class="metadata-value">{dataset["department"]}</span>
-            </div>
-            
-            <div class="metadata-group">
-                <span class="metadata-label">등록일:</span>
-                <span class="metadata-value">{dataset["reg_date"]}</span> |
-                <span class="metadata-label">수정일:</span>
-                <span class="metadata-value">{dataset["update_date"]}</span> |
-                <span class="metadata-label">파일형식:</span>
-                <span class="metadata-value">{dataset["file_format"].upper()}</span>
-            </div>
-            
-            <div class="metadata-group">
-                <span class="metadata-label">데이터 ID:</span>
-                <span class="metadata-value">{dataset["id"]}</span>
-            </div>
-            
-            <div class="metadata-group">
-                <span class="metadata-label">분류체계:</span>
-                <span class="metadata-value">{dataset["category"]}</span>
-            </div>
-            
-            <div>
-                {' '.join([f'<span class="tag">{tag}</span>' for tag in dataset["tags"]])}
-            </div>
-            
-            <div class="button-container">
-                <button style="background-color: #2563EB; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer;">데이터 미리보기</button>
-                <button style="background-color: #059669; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer;">다운로드</button>
-                <button style="background-color: #6B7280; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer;">메타데이터 보기</button>
-            </div>
-            
-            <p class="last-update">마지막 업데이트: 3년 전</p>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    # 연관 데이터세트 (예시)
-    st.markdown("### 연관 데이터세트")
-    
-    related_datasets = [
-        {"title": "강원도 국가지정문화재 현황", "similarity": "92%"},
-        {"title": "강원도 관광지 문화재 방문객 통계", "similarity": "85%"},
-        {"title": "강원도 무형문화재 보유자 현황", "similarity": "78%"}
+    # 예시 데이터들 (여러 데이터세트 표시)
+    datasets = [
+        {
+            "title": "강원도 문화재통계",
+            "description": "강원도 문화재와 관련된 통계 데이터입니다.",
+            "provider": "강원특별자치도",
+            "department": "정보화정책과",
+            "reg_date": "2024-10-25",
+            "update_date": "2025-10-01",
+            "file_format": "CSV",
+            "category": "문화예술 - 문화재",
+            "tags": ["문화재", "통계", "강원도"],
+            "quality_score": "100%",
+            "relevance_score": "74.5%"
+        },
+        {
+            "title": "강원도 국가지정문화재 현황",
+            "description": "강원도 내 위치한 국가지정문화재 현황 및 상세 정보입니다.",
+            "provider": "강원특별자치도",
+            "department": "문화유산과",
+            "reg_date": "2024-08-15",
+            "update_date": "2025-09-20",
+            "file_format": "CSV",
+            "category": "문화예술 - 문화재",
+            "tags": ["문화재", "국보", "보물", "강원도"],
+            "quality_score": "95%",
+            "relevance_score": "92.3%"
+        },
+        {
+            "title": "강원도 무형문화재 보유자 현황",
+            "description": "강원도 무형문화재 보유자 및 전수 현황에 대한 정보입니다.",
+            "provider": "강원특별자치도",
+            "department": "문화유산과",
+            "reg_date": "2024-09-05",
+            "update_date": "2025-09-05",
+            "file_format": "CSV",
+            "category": "문화예술 - 문화재",
+            "tags": ["무형문화재", "전통", "강원도"],
+            "quality_score": "90%",
+            "relevance_score": "82.1%"
+        }
     ]
     
-    for ds in related_datasets:
+    # 데이터세트 카드 형태로 표시
+    for dataset in datasets:
         st.markdown(f"""
-        <div style="padding: 10px; border: 1px solid #ddd; border-radius: 5px; margin-bottom: 10px;">
-            <div style="display: flex; justify-content: space-between;">
-                <span>{ds["title"]}</span>
-                <span class="highlight" style="background-color: #2563EB;">유사도: {ds["similarity"]}</span>
+        <div>
+            <div class="dataset-header">
+                <div class="dataset-title">{dataset["title"]}</div>
+                <div class="quality-badge">{dataset["quality_score"]}</div>
+                <div class="relevance-badge">유사도: {dataset["relevance_score"]}</div>
             </div>
+            
+            <div class="dataset-description">{dataset["description"]}</div>
+            
+            <div class="metadata-row">
+                <div class="metadata-item">
+                    <div class="metadata-label">제공기관:</div>
+                    <div class="metadata-value">{dataset["provider"]}</div>
+                </div>
+                <div class="metadata-item">
+                    <div class="metadata-label">담당부서:</div>
+                    <div class="metadata-value">{dataset["department"]}</div>
+                </div>
+                <div class="metadata-item">
+                    <div class="metadata-label">등록일:</div>
+                    <div class="metadata-value">{dataset["reg_date"]}</div>
+                </div>
+                <div class="metadata-item">
+                    <div class="metadata-label">수정일:</div>
+                    <div class="metadata-value">{dataset["update_date"]}</div>
+                </div>
+            </div>
+            
+            <div class="metadata-row">
+                <div class="metadata-item">
+                    <div class="metadata-label">파일형식:</div>
+                    <div class="metadata-value">{dataset["file_format"]}</div>
+                </div>
+                <div class="metadata-item">
+                    <div class="metadata-label">분류체계:</div>
+                    <div class="metadata-value">{dataset["category"]}</div>
+                </div>
+                <div class="metadata-item">
+                    <div class="metadata-label">키워드:</div>
+                    <div class="tag-container">
+                        {' '.join([f'<span class="tag">{tag}</span>' for tag in dataset["tags"]])}
+                    </div>
+                </div>
+            </div>
+            <div class="divider"></div>
         </div>
         """, unsafe_allow_html=True)
