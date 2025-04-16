@@ -161,16 +161,21 @@ if search_button or search_query:
         </div>
         """, unsafe_allow_html=True)
     
+    # 연관 데이터세트 (예시)
+    st.markdown("### 연관 데이터세트")
     
-    # 데이터 미리보기 (예시)
-    with st.expander("데이터 미리보기"):
-        # 예시 데이터
-        df = pd.DataFrame({
-            '지역': ['춘천시', '원주시', '강릉시', '속초시', '삼척시'],
-            '국보': [3, 1, 2, 0, 0],
-            '보물': [12, 8, 15, 5, 3],
-            '사적': [4, 3, 6, 2, 1],
-            '명승': [2, 1, 3, 2, 1],
-            '천연기념물': [3, 2, 4, 1, 2]
-        })
-        st.dataframe(df, use_container_width=True)
+    related_datasets = [
+        {"title": "강원도 국가지정문화재 현황", "similarity": "92%"},
+        {"title": "강원도 관광지 문화재 방문객 통계", "similarity": "85%"},
+        {"title": "강원도 무형문화재 보유자 현황", "similarity": "78%"}
+    ]
+    
+    for ds in related_datasets:
+        st.markdown(f"""
+        <div style="padding: 10px; border: 1px solid #ddd; border-radius: 5px; margin-bottom: 10px;">
+            <div style="display: flex; justify-content: space-between;">
+                <span>{ds["title"]}</span>
+                <span class="highlight" style="background-color: #2563EB;">유사도: {ds["similarity"]}</span>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
