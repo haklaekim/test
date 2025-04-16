@@ -8,76 +8,47 @@ st.set_page_config(
     layout="wide"
 )
 
-# CSS 스타일 적용
+# CSS 스타일 적용 (간소화)
 st.markdown("""
 <style>
+    .dataset-container {
+        border: 1px solid #e0e0e0;
+        border-radius: 5px;
+        padding: 15px;
+        margin-bottom: 15px;
+        background-color: white;
+    }
     .dataset-header {
         display: flex;
         align-items: center;
         margin-bottom: 10px;
     }
     .dataset-title {
-        font-size: 22px;
+        font-size: 20px;
         font-weight: bold;
-        color: #2C3E50;
         margin-right: 10px;
     }
-    .quality-badge {
+    .badge {
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-weight: bold;
+        font-size: 14px;
+        margin-right: a6px;
+    }
+    .badge-green {
         background-color: #4CAF50;
         color: white;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-weight: bold;
-        font-size: 14px;
-        margin-right: 6px;
     }
-    .relevance-badge {
+    .badge-blue {
         background-color: #3182CE;
         color: white;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-weight: bold;
-        font-size: 14px;
-    }
-    .dataset-description {
-        font-size: 16px;
-        color: #333;
-        margin-bottom: 15px;
-    }
-    .metadata-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
-        margin-bottom: 6px;
-    }
-    .metadata-item {
-        display: flex;
-    }
-    .metadata-label {
-        font-weight: 500;
-        color: #555;
-        margin-right: 4px;
-    }
-    .metadata-value {
-        color: #1A202C;
-    }
-    .tag-container {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
-        margin-top: 8px;
     }
     .tag {
-        background-color: #EDF2F7;
-        color: #4A5568;
-        padding: 3px 8px;
-        border-radius: 12px;
-        font-size: 13px;
-    }
-    .divider {
-        height: 1px;
-        background-color: #E2E8F0;
-        margin: 12px 0;
+        background-color: #f1f1f1;
+        padding: 2px 8px;
+        border-radius: 10px;
+        margin-right: 5px;
+        font-size: 12px;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -104,7 +75,7 @@ if search_button or search_query:
     st.markdown("---")
     st.markdown("### 검색 결과")
     
-    # 예시 데이터들 (여러 데이터세트 표시)
+    # 예시 데이터 (이미지에서 보이는 데이터 기반)
     datasets = [
         {
             "title": "강원도 문화재통계",
@@ -131,69 +102,43 @@ if search_button or search_query:
             "tags": ["문화재", "국보", "보물", "강원도"],
             "quality_score": "95%",
             "relevance_score": "92.3%"
-        },
-        {
-            "title": "강원도 무형문화재 보유자 현황",
-            "description": "강원도 무형문화재 보유자 및 전수 현황에 대한 정보입니다.",
-            "provider": "강원특별자치도",
-            "department": "문화유산과",
-            "reg_date": "2024-09-05",
-            "update_date": "2025-09-05",
-            "file_format": "CSV",
-            "category": "문화예술 - 문화재",
-            "tags": ["무형문화재", "전통", "강원도"],
-            "quality_score": "90%",
-            "relevance_score": "82.1%"
         }
     ]
     
-    # 데이터세트 카드 형태로 표시
+    # 데이터세트 표시 (Streamlit 기본 요소 사용)
     for dataset in datasets:
-        st.markdown(f"""
-        <div>
-            <div class="dataset-header">
-                <div class="dataset-title">{dataset["title"]}</div>
-                <div class="quality-badge">{dataset["quality_score"]}</div>
-                <div class="relevance-badge">유사도: {dataset["relevance_score"]}</div>
-            </div>
+        with st.container():
+            # 제목 줄 (제목 + 품질점수 + 유사도)
+            col1, col2, col3 = st.columns([6, 1, 2])
+            with col1:
+                st.markdown(f"### {dataset['title']}")
+            with col2:
+                st.markdown(f"<div style='background-color: #4CAF50; color: white; padding: 4px 8px; border-radius: 4px; text-align: center; font-weight: bold;'>{dataset['quality_score']}</div>", unsafe_allow_html=True)
+            with col3:
+                st.markdown(f"<div style='background-color: #3182CE; color: white; padding: 4px 8px; border-radius: 4px; text-align: center; font-weight: bold;'>유사도: {dataset['relevance_score']}</div>", unsafe_allow_html=True)
             
-            <div class="dataset-description">{dataset["description"]}</div>
+            # 설명
+            st.markdown(f"{dataset['description']}")
             
-            <div class="metadata-row">
-                <div class="metadata-item">
-                    <div class="metadata-label">제공기관:</div>
-                    <div class="metadata-value">{dataset["provider"]}</div>
-                </div>
-                <div class="metadata-item">
-                    <div class="metadata-label">담당부서:</div>
-                    <div class="metadata-value">{dataset["department"]}</div>
-                </div>
-                <div class="metadata-item">
-                    <div class="metadata-label">등록일:</div>
-                    <div class="metadata-value">{dataset["reg_date"]}</div>
-                </div>
-                <div class="metadata-item">
-                    <div class="metadata-label">수정일:</div>
-                    <div class="metadata-value">{dataset["update_date"]}</div>
-                </div>
-            </div>
+            # 메타데이터 첫 줄
+            col1, col2, col3, col4 = st.columns(4)
+            with col1:
+                st.markdown(f"**제공기관:** {dataset['provider']}")
+            with col2:
+                st.markdown(f"**담당부서:** {dataset['department']}")
+            with col3:
+                st.markdown(f"**등록일:** {dataset['reg_date']}")
+            with col4:
+                st.markdown(f"**수정일:** {dataset['update_date']}")
             
-            <div class="metadata-row">
-                <div class="metadata-item">
-                    <div class="metadata-label">파일형식:</div>
-                    <div class="metadata-value">{dataset["file_format"]}</div>
-                </div>
-                <div class="metadata-item">
-                    <div class="metadata-label">분류체계:</div>
-                    <div class="metadata-value">{dataset["category"]}</div>
-                </div>
-                <div class="metadata-item">
-                    <div class="metadata-label">키워드:</div>
-                    <div class="tag-container">
-                        {' '.join([f'<span class="tag">{tag}</span>' for tag in dataset["tags"]])}
-                    </div>
-                </div>
-            </div>
-            <div class="divider"></div>
-        </div>
-        """, unsafe_allow_html=True)
+            # 메타데이터 둘째 줄
+            col1, col2, col3 = st.columns([1, 2, 3])
+            with col1:
+                st.markdown(f"**파일형식:** {dataset['file_format']}")
+            with col2:
+                st.markdown(f"**분류체계:** {dataset['category']}")
+            with col3:
+                tag_html = " ".join([f'<span style="background-color: #f1f1f1; padding: 2px 8px; border-radius: 10px; margin-right: 5px; font-size: 12px;">{tag}</span>' for tag in dataset['tags']])
+                st.markdown(f"**키워드:** {tag_html}", unsafe_allow_html=True)
+            
+            st.markdown("---")
